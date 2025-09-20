@@ -38,7 +38,7 @@ window.addEventListener("DOMContentLoaded", function () {
     //tabs end
 
     //timer start
-    const endTime = "2025-12-31 23:59:59";
+    const endTime = "2026-01-01 00:00";
 
 function getTimeRemaning(endTime) {
     const total = Date.parse(endTime) - Date.parse(new Date());
@@ -63,7 +63,7 @@ function getTimeRemaning(endTime) {
 }
 
 function setZero(n) {
-    return n >= 0 && n < 9 ? `0${n}` : n;
+    return n >= 0 && n < 10 ? `0${n}` : n;
 }
 
 function setClock(selector, endTime) {
@@ -94,5 +94,33 @@ function setClock(selector, endTime) {
 setClock(".timer", endTime);
 
     //timer end
+
+    //modal start
+
+    const openModalTriggers = document.querySelectorAll("[data-modal-open]");
+    const closeModalTrigger = document.querySelector("[data-modal-close]");
+    const modal = document.querySelector(".modal");
+
+    if (!modal.matches(".hidden") && !modal.matches(".show"))
+        modal.classList.add("hidden");
+
+    openModalTriggers.forEach(trigger => {
+        trigger.addEventListener("click", () => {
+            if (modal.classList.contains("hidden")) {
+                modal.classList.remove("hidden");
+                modal.classList.add("show");
+                document.body.style.overflowY = "hidden";
+                document.modal.style.display = "block";
+            }
+        });
+    });
+
+    closeModalTrigger.addEventListener("click", () => {
+        if (modal.classList.contains("show")) {
+                modal.classList.remove("show");
+                modal.classList.add("hidden");
+            }
+    })
+    //modal end
 });
 
