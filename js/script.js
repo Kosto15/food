@@ -101,51 +101,46 @@ setClock(".timer", endTime);
     const closeModalTrigger = document.querySelector("[data-modal-close]");
     const modal = document.querySelector(".modal");
 
-    const modalTimerId = setTimeout(openModal, 32000);
+    if (!modal.matches(".hidden") && !modal.matches(".show")) {
+    modal.classList.add("hidden");
+    }
+
+    openModalTriggers.forEach((trigger) => {
+    trigger.addEventListener("click", () => {
+        if (modal.classList.contains("hidden")) {
+        modal.classList.remove("hidden");
+        modal.classList.add("show");
+        document.body.style.overflowY = "hidden";
+        }
+    });
+
+    //using close function
 
     function closeModal() {
         modal.classList.remove("show");
         modal.classList.add("hidden");
         document.body.style.overflowY = "auto";
-        clearTimeout(modalTimerId);
     }
-
-    function openModal() {
-        modal.classList.remove("hidden");
-        modal.classList.add("show");
-        document.body.style.overflowY = "hidden";
-        clearTimeout(modalTimerId);
-    }
-
-    openModalTriggers.forEach(trigger => {
-        trigger.addEventListener("click", () => {
-            if (modal.classList.contains("hidden")) openModal();
-        });
-    });
-    
-    if (!modal.matches(".hidden") && !modal.matches(".show"))
-        modal.classList.add("hidden");
-
-    function showModalByScroll() {
-        if (window.scrollY + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 1) {
-            openModal();
-            window.removeEventListener("scroll", showModalByScroll);
-        }
-    }
-    
     closeModalTrigger.addEventListener("click", () => {
-        if (modal.classList.contains("show")) closeModal();
+        if (modal.classList.contains("show")) {
+        closeModal();
+        }
     });
+
+    //using event delegation
 
     modal.addEventListener("click", (e) => {
-        if(e.target && e.target === modal) closeModal();
+        if (e.target && e.target.matches(".modal")) {
+        closeModal();
+        }
     });
 
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && modal.matches(".show")) closeModal();
-    });
-
-    window.addEventListener("scroll", showModalByScroll);
+    document.addEventListener("keydown", (e)=>{
+        if (e.key === "Escape" && modal.matches(".show")) {
+        closeModal();
+        }
+    })
+});
 
     //modal end
 
@@ -202,8 +197,8 @@ setClock(".timer", endTime);
         "elite",
         "Меню “Премиум”",
         `В меню “Премиум” мы используем не только красивый дизайн упаковки, но
-                        и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода
-                        в ресторан!`,
+            и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода
+            в ресторан!`,
         13.33,
         ".menu__field .container"
      ).render();
@@ -213,11 +208,104 @@ setClock(".timer", endTime);
         "post",
         "Меню \"Постное\"",
         `Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие
-                        продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное
-                        количество белков за счет тофу и импортных вегетарианских стейков.`,
+            продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное
+            количество белков за счет тофу и импортных вегетарианских стейков.`,
         10.42,
         ".menu__field .container"
      ).render();
+
     //MenuCard end
+
+    // forms start
+
+    // take all forms
+    const forms = document.querySelectorAll("form");
+    forms.forEach((form) => {
+        postData(form);
+    });
+
+    const MESSAGES = {
+        loading: "Загрузка...",
+        success: "Спасибо! Скоро мы с вами свяжемся",
+        failure: "Что-то пошло не так... Попробуйте еще раз",
+    };
+
+    function postData(form) {
+        form.addEventListener("submit", (e) => {
+        e.preventDefault();
+
+        const loading = document.createElement("div");
+        loading.style.cssText = `      
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 16px;
+        margin-top: 16px;`;
+        loading.innerHTML = `<img src="icons/spinner.svg" style="width: 16px;height: 16px;"/> <span>${MESSAGES.loading}</span>`;
+        form.insertAdjacentElement("beforeend", loading);
+
+        const formData = new FormData(e.target);
+
+        const request = new XMLHttpRequest();
+        request.open("POST", "http://localhost:4200/support/");
+        request.setRequestHeader("Content-Type", "application/json");
+
+        // converting formData to JSON
+
+        request.send(JSON.stringify(Object.fromEntries(formData)));
+        e.target.reset();
+
+        // request.send(formData);
+        request.addEventListener("load", (e) => {
+            if (request.status === 200) {
+            //console.log(request.response);
+            //console.log("Успех:", request.response);
+            //form.insertAdjacentHTML("beforeend", `<p>${MESSAGES.success}</p>`);
+
+            ShowResponseModal(MESSAGES.success, loading);
+            } else {
+            //console.error("Ошибка:", request.status);
+            //form.insertAdjacentHTML("beforeend", `<p>${MESSAGES.failure}</p>`);
+
+            ShowResponseModal(MESSAGES.failure, loading);
+            }
+        });
+        });
+    }
+
+    // showing modal window with response message
+    function ShowResponseModal(message, loading) {
+        loading.remove();
+        // hiding previous modal window
+        const prevModalDialog = document.querySelector(".modal__dialog");
+        prevModalDialog.classList.add("hide");
+        openModal();
+
+        // creating new modal window
+        const responseModal = document.createElement("div");
+        responseModal.classList.add("modal__dialog");
+        responseModal.innerHTML = `
+        <div class="modal__content">          
+                <div data-modal-close class="modal__close">&times;</div>
+                <div class="modal__title">
+                ${message}
+                </div>                 
+            </div>
+        `;
+        modal.append(responseModal);
+
+        const srmId = setTimeout(() => {
+        responseModal.remove();
+        prevModalDialog.classList.remove("hide");
+        prevModalDialog.classList.add("show");
+        clearTimeout(srmId);
+        closeModal();
+        }, 2500);
+    }
+
+    //forms end
+
+    
 });
 
