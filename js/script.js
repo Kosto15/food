@@ -38,7 +38,7 @@ window.addEventListener("DOMContentLoaded", function () {
     //tabs end
 
     //timer start
-    const endTime = "2026-01-01 00:00";
+    const endTime = "2026-09-23 00:00";
 
 function getTimeRemaning(endTime) {
     const total = Date.parse(endTime) - Date.parse(new Date());
@@ -344,4 +344,3 @@ setClock(".timer", endTime);
     
     //slider end
 });
-
