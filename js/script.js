@@ -39,7 +39,7 @@ window.addEventListener("DOMContentLoaded", function () {
     // tabs logic end
     
     // timer logic start
-    const deadline = "2026-09-23 23:59:59"
+    const deadline = "2026-09-22 23:59:59";
     
     function timeRemaining(deadline) {
         const total = Date.parse(deadline) - Date.parse(new Date());
@@ -76,7 +76,7 @@ window.addEventListener("DOMContentLoaded", function () {
         const timeInterval = setInterval(clockUpdate, 1000);
     
         clockUpdate()
-
+    
         function clockUpdate() {
             const {total, days, hours, minutes, seconds} = timeRemaining(deadline);
 
@@ -92,6 +92,43 @@ window.addEventListener("DOMContentLoaded", function () {
     }
 
     setClock(".timer", deadline);
-
     // timer logic end
+
+    // modal logic start
+    const openModalTriggers = document.querySelectorAll("[data-modal-open]");
+    const closeModalTrigger = document.querySelector("[data-modal-close]");
+    const modal = document.querySelector(".modal");
+
+    if (!modal.matches(".hidden") && !modal.matches(".show")) {
+        modal.classList.add("hidden")
+    }
+
+    openModalTriggers.forEach(trigger => {
+        trigger.addEventListener("click", () => {
+            if (modal.classList.contains("hidden")) {
+                modal.classList.remove("hidden")
+                modal.classList.add("show")
+                document.body.style.overflowY = "hidden";
+            }
+        });
+    });
+
+    function closeModal () {
+        modal.classList.remove("show")
+        modal.classList.add("hidden")
+        document.body.style.overflowY = "auto";
+    }
+
+    closeModalTrigger.addEventListener("click", () => {
+            if (modal.classList.contains("show")) closeModal();
+    });
+
+    modal.addEventListener("click", (e) => {
+        if (e.target && e.target === modal) closeModal();
+    });
+
+    // presss escape button = closeModal function
+    document.addEventListener("keydown", (e) => {if (e.key === "Escape" && modal.matches(".show")) closeModal()});
+
+    // modal logic end
 });
