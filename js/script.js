@@ -99,28 +99,41 @@ window.addEventListener("DOMContentLoaded", function () {
     const closeModalTrigger = document.querySelector("[data-modal-close]");
     const modal = document.querySelector(".modal");
 
+    const modalTimerId = setTimeout(openModal, 600000);
+
+    function closeModal () {
+        modal.classList.remove("show")
+        modal.classList.add("hidden")
+        document.body.style.overflowY = "auto";
+        clearTimeout(modalTimerId);
+    }
+
+    function openModal () {
+        modal.classList.remove("hidden")
+        modal.classList.add("show")
+        document.body.style.overflowY = "hidden";
+        clearTimeout(modalTimerId);
+    }
+
+    function showModalWhenWeScroll () {
+        if (window.scrollY + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 1) {
+            openModal()
+            window.removeEventListener("scroll", showModalWhenWeScroll)
+        }
+    }
+
     if (!modal.matches(".hidden") && !modal.matches(".show")) {
         modal.classList.add("hidden")
     }
 
     openModalTriggers.forEach(trigger => {
         trigger.addEventListener("click", () => {
-            if (modal.classList.contains("hidden")) {
-                modal.classList.remove("hidden")
-                modal.classList.add("show")
-                document.body.style.overflowY = "hidden";
-            }
+            if (modal.classList.contains("hidden")) openModal();
         });
     });
 
-    function closeModal () {
-        modal.classList.remove("show")
-        modal.classList.add("hidden")
-        document.body.style.overflowY = "auto";
-    }
-
     closeModalTrigger.addEventListener("click", () => {
-            if (modal.classList.contains("show")) closeModal();
+        if (modal.classList.contains("show")) closeModal();
     });
 
     modal.addEventListener("click", (e) => {
@@ -128,7 +141,10 @@ window.addEventListener("DOMContentLoaded", function () {
     });
 
     // presss escape button = closeModal function
-    document.addEventListener("keydown", (e) => {if (e.key === "Escape" && modal.matches(".show")) closeModal()});
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.matches(".show")) closeModal();
+    });
 
+    window.addEventListener("scroll", showModalWhenWeScroll);
     // modal logic end
 });
