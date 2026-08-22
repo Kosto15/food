@@ -217,4 +217,6 @@ window.addEventListener("DOMContentLoaded", function () {
     ).render();
 
     // MenuCard logic end
+
+
 });
