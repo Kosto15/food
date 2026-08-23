@@ -96,7 +96,6 @@ window.addEventListener("DOMContentLoaded", function () {
 
     // modal logic start
     const openModalTriggers = document.querySelectorAll("[data-modal-open]");
-    const closeModalTrigger = document.querySelector("[data-modal-close]");
     const modal = document.querySelector(".modal");
 
     const modalTimerId = setTimeout(openModal, 600000);
@@ -132,12 +131,8 @@ window.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    closeModalTrigger.addEventListener("click", () => {
-        if (modal.classList.contains("show")) closeModal();
-    });
-
     modal.addEventListener("click", (e) => {
-        if (e.target && e.target === modal) closeModal();
+        if (e.target && e.target === modal || e.target.matches("[data-modal-close]")) closeModal();
     });
 
     // presss escape button = closeModal function
@@ -217,4 +212,74 @@ window.addEventListener("DOMContentLoaded", function () {
     ).render();
 
     // MenuCard logic end
+
+    // forms start
+    const forms = document.querySelectorAll("form");
+
+    forms.forEach(form => postData(form));
+
+    const MESSAGES = {
+        loading: "Загрузка...",
+        success: "Спасибо! Скоро мы с Вами свяжемся",
+        failure: "Что-то пошло не так... Попробуйте снова!"
+    }
+
+    function postData(form) {
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const loading = document.createElement("div");
+            loading.style.cssText = `
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 16px;
+            `
+            loading.innerHTML = MESSAGES.loading;
+            form.insertAdjacentElement("beforeend", loading);
+
+            const formData = new FormData(e.target);
+
+            const request = new XMLHttpRequest();
+            request.open("POST", "http://localhost:4200/support/");
+            request.setRequestHeader("Content-type", "application/json");
+
+            request.send(JSON.stringify(Object.fromEntries(formData)));
+            e.target.reset();
+
+            request.addEventListener("load", (e) => {
+                if (request.status === 200) {
+                    showResponceModal(MESSAGES.success, loading)
+                } else {
+                    showResponceModal(MESSAGES.failure, loading)
+                }
+            });
+        });
+    }
+    
+    function showResponceModal (message, loading) {
+        loading.remove();
+        const prevModalDialog = document.querySelector(".modal__dialog");
+        prevModalDialog.classList.add("hide");
+        openModal();
+
+        const responceModal = document.createElement("div");
+        responceModal.classList.add("modal__dialog")
+        responceModal.innerHTML = `
+        <div class="modal__content">
+                <div data-modal-close class="modal__close">&times;</div>
+                <div class="modal__title">${message}</div>
+            </div>
+        `;
+
+        modal.append(responceModal);
+        const srmID = setTimeout(() => {
+            responceModal.remove();
+            prevModalDialog.classList.remove("hide");
+            prevModalDialog.classList.add("show");
+            closeModal();
+            clearTimeout(srmID)
+        }, 2500);
+    }
+    // forms end
 });
