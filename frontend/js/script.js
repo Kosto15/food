@@ -234,31 +234,33 @@ window.addEventListener("DOMContentLoaded", function () {
             align-items: center;
             justify-content: center;
             margin-top: 16px;
-            `
+            `;
             loading.innerHTML = MESSAGES.loading;
             form.insertAdjacentElement("beforeend", loading);
 
-            const formData = new FormData(e.target);
-
-            const request = new XMLHttpRequest();
-            request.open("POST", "http://localhost:4200/support/");
-            request.setRequestHeader("Content-type", "application/json");
-
-            request.send(JSON.stringify(Object.fromEntries(formData)));
-            e.target.reset();
-
-            request.addEventListener("load", (e) => {
-                if (request.status === 200) {
-                    showResponceModal(MESSAGES.success, loading)
+            fetch("http://localhost:4200/support/", {
+                method: "POST",
+                headers:{
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify(Object.fromEntries(new FormData(e.target)))
+            })
+            .then(responce => {
+                if (responce.ok) {
+                    showResponceModal(MESSAGES.success)
                 } else {
-                    showResponceModal(MESSAGES.failure, loading)
+                    showResponceModal(MESSAGES.failure)
                 }
-            });
+            })
+            .catch(e => console.log(e))
+            .finally(() => {
+                loading.remove()
+                e.target.reset();
+            })
         });
     }
     
     function showResponceModal (message, loading) {
-        loading.remove();
         const prevModalDialog = document.querySelector(".modal__dialog");
         prevModalDialog.classList.add("hide");
         openModal();
