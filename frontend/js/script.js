@@ -317,6 +317,53 @@ window.addEventListener("DOMContentLoaded", function () {
     }
     // forms end
 
+    // slider first version start
+    const slides = document.querySelectorAll(".offer__slide");
+    const prevBtn = document.querySelector(".offer__slider-prev");
+    const nextBtn = document.querySelector(".offer__slider-next");
+    const current = document.querySelector("#current");
+    const total = document.querySelector("#total");
+
+    let slideIndex = 1;
+
+    function setCurrentAndTotal(block, index) {
+        if (slides.length < 10) {
+            block.textContent = `0${index}`;
+        } else {
+            block.textContent = index;
+        }
+    }
+
+    function showSlides (n) {
+        if (n > slides.length) {
+            slideIndex = 1
+        }
+        if (n < 1) {
+            slideIndex = slides.length;
+        }
+
+        slides.forEach(slide => {
+            slide.classList.add("hide");
+            slide.classList.remove("show", "fade");
+        });
+
+            slides[slideIndex -1].classList.remove("hide");
+            slides[slideIndex -1].classList.add("show", "fade");
+
+            setCurrentAndTotal(current, slideIndex)
+    }
+
+    function changeSlidesN (n) {
+        showSlides(slideIndex += n);
+    }
+
+    changeSlidesN(0)
+    setCurrentAndTotal(total, slides.length)
+    prevBtn.addEventListener("click", () => changeSlidesN(-1))
+    nextBtn.addEventListener("click", () => changeSlidesN(1))
+
+    // slider first version end
+
     // global function start
     async function postData(url, data) {
         const res = await fetch(url, {
@@ -342,8 +389,4 @@ window.addEventListener("DOMContentLoaded", function () {
     }
     // global function end
 
-    // slider first version start
-    
-
-    // slider first version end
 });
