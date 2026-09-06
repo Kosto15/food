@@ -179,44 +179,56 @@ window.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    new MenuCard (
-        "/img/tabs/vegy.jpg",
-        "vegy", 
-        "Меню \"Фитнес\"",
-        `Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Для
-        людей, которые интересуются спортом; активных и здоровых. Это абсолютно новый продукт с
-        оптимальной ценой и высоким качеством!`,
-        15.16,
-        ".menu__field .container"
-    ).render();
+    axios.get("http://localhost:9999/menu")
+        .then(data => {
+            data.data.forEach(item => {
+                new MenuCard(
+                    item.coverSrc, 
+                    item.coverAlt, 
+                    item.title, 
+                    item.descr, 
+                    item.price, 
+                    ".menu__field .container"
+                ).render()
+        });
+    });
 
-    new MenuCard(
-        "/img/tabs/elite.jpg",
-        "elite",
-        "Меню \"Премиум\"",
-        `Меню “Премиум” - мы используем не только красивый дизайн упаковки, но и качественное 
-        исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!`,
-        31.32,
-        ".menu__field .container"
-    ).render();
+    // new MenuCard (
+    //     "/img/tabs/vegy.jpg",
+    //     "vegy", 
+    //     "Меню \"Фитнес\"",
+    //     `Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Для
+    //     людей, которые интересуются спортом; активных и здоровых. Это абсолютно новый продукт с
+    //     оптимальной ценой и высоким качеством!`,
+    //     15.16,
+    //     ".menu__field .container"
+    // ).render();
 
-    new MenuCard(
-        "/img/tabs/post.jpg",
-        "post",
-        "Меню \"Постное\"",
-        `Наше специальное “Постное меню” - это тщательный подбор ингредиентов: полное отсутствие
-        продуктов животного происхождения. Полная гармония с собой и природой в каждом элементе! Все
-        будет Ом!`,
-        24.12,
-        ".menu__field .container"
-    ).render();
+    // new MenuCard(
+    //     "/img/tabs/elite.jpg",
+    //     "elite",
+    //     "Меню \"Премиум\"",
+    //     `Меню “Премиум” - мы используем не только красивый дизайн упаковки, но и качественное 
+    //     исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!`,
+    //     31.32,
+    //     ".menu__field .container"
+    // ).render();
+
+    // new MenuCard(
+    //     "/img/tabs/post.jpg",
+    //     "post",
+    //     "Меню \"Постное\"",
+    //     `Наше специальное “Постное меню” - это тщательный подбор ингредиентов: полное отсутствие
+    //     продуктов животного происхождения. Полная гармония с собой и природой в каждом элементе! Все
+    //     будет Ом!`,
+    //     24.12,
+    //     ".menu__field .container"
+    // ).render();
 
     // MenuCard logic end
 
     // forms start
     const forms = document.querySelectorAll("form");
-
-    forms.forEach(form => postData(form));
 
     const MESSAGES = {
         loading: "Загрузка...",
@@ -238,29 +250,49 @@ window.addEventListener("DOMContentLoaded", function () {
             loading.innerHTML = MESSAGES.loading;
             form.insertAdjacentElement("beforeend", loading);
 
-            fetch("http://localhost:4200/support/", {
-                method: "POST",
-                headers:{
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify(Object.fromEntries(new FormData(e.target)))
-            })
-            .then(responce => {
-                if (responce.ok) {
-                    showResponceModal(MESSAGES.success)
-                } else {
-                    showResponceModal(MESSAGES.failure)
-                }
-            })
-            .catch(e => console.log(e))
-            .finally(() => {
-                loading.remove()
-                e.target.reset();
-            })
+            const formData = new FormData(e.target);
+            const data = JSON.stringify(Object.fromEntries(formData.entries()));
+
+            axios.post("http://localhost:9999/support", data)
+                .then(responce => {
+                    if (responce.status === 201) {
+                        showResponceModal(MESSAGES.success)
+                    } else {
+                        showResponceModal(MESSAGES.failure)
+                    }
+                })
+                .catch(e => {
+                    console.log(e);
+                    showResponceModal(MESSAGES.failure);
+                })
+                .finally(() => {
+                    loading.remove()
+                    e.target.reset()
+                    axios.get("http://localhost:9999/support").then(data => console.log(data))
+                })
+
+            // fetch("http://localhost:4200/support/", {
+            //     postData(
+            //      "http://localhost:9999/support"
+            //     )
+            //     data
+            // })
+            // .then(responce => {
+            //     if (responce.ok) {
+            //         showResponceModal(MESSAGES.success)
+            //     } else {
+            //         showResponceModal(MESSAGES.failure)
+            //     }
+            // })
+            // .catch(e => console.log(e))
+            // .finally(() => {
+            //     loading.remove()
+            //     e.target.reset();
+            // })
         });
     }
     
-    function showResponceModal (message, loading) {
+    function showResponceModal (message) {
         const prevModalDialog = document.querySelector(".modal__dialog");
         prevModalDialog.classList.add("hide");
         openModal();
@@ -284,4 +316,34 @@ window.addEventListener("DOMContentLoaded", function () {
         }, 2500);
     }
     // forms end
+
+    // global function start
+    async function postData(url, data) {
+        const res = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: data
+        });
+        
+        // return await res.json();
+        return res;
+    }
+    
+    async function getData(url) {
+        const res = await fetch(url);
+        
+        if (!res.ok) {
+            throw new Error (`Не удалось получить ${url}, статус - ${res.status}`);
+        }
+        
+        return await res.json();
+    }
+    // global function end
+
+    // slider first version start
+    
+
+    // slider first version end
 });
