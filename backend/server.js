@@ -14,7 +14,6 @@ app.use(express.json());
 // app.use(bodyParser.urlencoded());
 
 app.post("/support/", (req, res) => {
-    const {name, phone } = req.body;
     const data = {"message" : "success"};
     res.status(200).send(data)
 });
