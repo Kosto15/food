@@ -317,14 +317,74 @@ window.addEventListener("DOMContentLoaded", function () {
     }
     // forms end
 
-    // slider first version start
+    // sliders
     const slides = document.querySelectorAll(".offer__slide");
     const prevBtn = document.querySelector(".offer__slider-prev");
     const nextBtn = document.querySelector(".offer__slider-next");
     const current = document.querySelector("#current");
     const total = document.querySelector("#total");
+    const slidesWrapper = document.querySelector(".offer__slider-wrapper");
+    const slidesInner = document.querySelector(".offer__slider-inner");
+    
+    // slider first version start
+    // function setCurrentAndTotal(block, index) {
+    //     if (slides.length < 10) {
+    //         block.textContent = `0${index}`;
+    //     } else {
+    //         block.textContent = index;
+    //     }
+    // }
 
+    // function showSlides (n) {
+    //     if (n > slides.length) {
+    //         slideIndex = 1
+    //     }
+    //     if (n < 1) {
+    //         slideIndex = slides.length;
+    //     }
+
+    //     slides.forEach(slide => {
+    //         slide.classList.add("hide");
+    //         slide.classList.remove("show", "fade");
+    //     });
+    //         slides[slideIndex -1].classList.remove("hide");
+    //         slides[slideIndex -1].classList.add("show", "fade");
+    //         setCurrentAndTotal(current, slideIndex)
+    // }
+
+    // function changeSlidesN (n) {
+    //     showSlides(slideIndex += n);
+    // }
+
+    // changeSlidesN(0)
+    // setCurrentAndTotal(total, slides.length)
+    // prevBtn.addEventListener("click", () => changeSlidesN(-1))
+    // nextBtn.addEventListener("click", () => changeSlidesN(1))
+    // slider first version end
+
+    // slider second version start
     let slideIndex = 1;
+    let baseOffset = 0;
+    const wrapperWidth = parseFloat(window.getComputedStyle(slidesWrapper).width);
+
+    function mathCurrentAndTotal(state) {
+        switch (state) {
+            case "next":
+                if (slideIndex == slides.length) {
+                    slideIndex = 1;
+                } else {
+                    ++slideIndex;
+                }
+                break;
+                case "prev":
+                if (slideIndex == 1) {
+                    slideIndex = slides.length;
+                } else {
+                    --slideIndex;
+                }
+                break;
+        }
+    }
 
     function setCurrentAndTotal(block, index) {
         if (slides.length < 10) {
@@ -334,35 +394,39 @@ window.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    function showSlides (n) {
-        if (n > slides.length) {
-            slideIndex = 1
+    setCurrentAndTotal(current, slideIndex);
+    setCurrentAndTotal(total, slides.length);
+
+    slidesWrapper.style.overflow = "hidden";
+    slidesInner.style.cssText = `
+    width: ${100 * slides.length}%;
+    transition: 0.3s all ease-in;
+    display: flex;
+    `
+    slides.forEach(slide => slide.style.width = wrapperWidth);
+
+    nextBtn.addEventListener("click", () => {
+        if (baseOffset == wrapperWidth * (slides.length - 1)) {
+            baseOffset = 0;
+        } else {
+            baseOffset += wrapperWidth;
         }
-        if (n < 1) {
-            slideIndex = slides.length;
+        mathCurrentAndTotal("next")
+        setCurrentAndTotal(current, slideIndex);
+        slidesInner.style.transform = `translateX(-${baseOffset}px)`;
+    });
+    prevBtn.addEventListener("click", () => {
+        if (baseOffset == 0) {
+            baseOffset = wrapperWidth * (slides.length - 1)
+        } else {
+            baseOffset -= wrapperWidth
         }
-
-        slides.forEach(slide => {
-            slide.classList.add("hide");
-            slide.classList.remove("show", "fade");
-        });
-
-            slides[slideIndex -1].classList.remove("hide");
-            slides[slideIndex -1].classList.add("show", "fade");
-
-            setCurrentAndTotal(current, slideIndex)
-    }
-
-    function changeSlidesN (n) {
-        showSlides(slideIndex += n);
-    }
-
-    changeSlidesN(0)
-    setCurrentAndTotal(total, slides.length)
-    prevBtn.addEventListener("click", () => changeSlidesN(-1))
-    nextBtn.addEventListener("click", () => changeSlidesN(1))
-
-    // slider first version end
+        mathCurrentAndTotal("prev")
+        setCurrentAndTotal(current, slideIndex);
+        slidesInner.style.transform = `translateX(-${baseOffset}px)`;
+    });
+    // slider second version end
+    // sliders
 
     // global function start
     async function postData(url, data) {
@@ -388,5 +452,4 @@ window.addEventListener("DOMContentLoaded", function () {
         return await res.json();
     }
     // global function end
-
 });
