@@ -475,6 +475,19 @@ window.addEventListener("DOMContentLoaded", function () {
         age: ""
     };
 
+    getStaticInformationFromLS("gender", "female");
+    getStaticInformationFromLS("pac", 1.375);
+
+    getDynamicInformationFromLS("height", 170, "#height");
+    getDynamicInformationFromLS("weight", 70, "#weight");
+    getDynamicInformationFromLS("age", 25, "#age");
+
+    gender = state.gender;
+    pac = state.pac;
+    height = state.height;
+    weight = state.weight;
+    age = state.age;
+
     function getStaticInformationFromLS(key, defaultValue) {
         if (localStorage.getItem(key)) {
             state[key] = localStorage.getItem(key);
@@ -494,44 +507,6 @@ window.addEventListener("DOMContentLoaded", function () {
             localStorage.setItem(key, defaultValue)
     }
     }
-
-    getStaticInformationFromLS("gender", "female");
-    getStaticInformationFromLS("pac", 1.375);
-
-    getDynamicInformationFromLS("height", 170, "#height");
-    getDynamicInformationFromLS("weight", 70, "#weight");
-    getDynamicInformationFromLS("age", 25, "#age");
-
-    gender = state.gender;
-    pac = state.pac;
-    height = state.height;
-    weight = state.weight;
-    age = state.age;
-
-    // if (localStorage.getItem("height")) {
-    //         height = localStorage.getItem("height");
-    //         document.querySelector("#height").value = height;
-    //     } else {
-    //         height = 170;
-    //         document.querySelector("#height").value = height;
-    //         localStorage.setItem("height", height)
-    // }
-    // if (localStorage.getItem("weight")) {
-    //         weight = localStorage.getItem("weight");
-    //         document.querySelector("#weight").value = weight;
-    //     } else {
-    //         weight = 70;
-    //         document.querySelector("#weight").value = weight;
-    //         localStorage.setItem("weight", weight)
-    // }
-    // if (localStorage.getItem("age")) {
-    //         age = localStorage.getItem("age");
-    //         document.querySelector("#age").value = age;
-    //     } else {
-    //         age = 25;
-    //         document.querySelector("#age").value = age;
-    //         localStorage.setItem("age", age)
-    // }
 
     function initLocalSettings(selector, activeClass) {
         const elements = document.querySelectorAll(selector);
